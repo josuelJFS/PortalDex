@@ -6,17 +6,50 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "echo 'No linter configured'"
   },
   "dependencies": {
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native-stack": "^7.1.9",
     "expo": "~54.0.13",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
-    "react-native": "0.81.4"
+    "react-native": "0.81.4",
+    "react-native-gesture-handler": "^2.20.0",
+    "react-native-safe-area-context": "^4.12.0",
+    "react-native-screens": "^4.5.0"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^12.6.1",
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.1.0",
+    "babel-preset-expo": "~11.0.0",
+    "jest": "^29.7.0",
+    "jest-expo": "~54.0.0",
+    "react-test-renderer": "19.1.0",
+    "ts-jest": "^29.4.5",
     "typescript": "~5.9.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/?(*.)+(spec|test).ts"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "private": true
 }
