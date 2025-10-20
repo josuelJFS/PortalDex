@@ -7,15 +7,12 @@ import {
   Text,
   View,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types/navigation";
-import { Character, fetchCharacter } from "../api/rickAndMorty";
+import { Character, fetchCharacter } from "../../src/api/rickAndMorty";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Detail">;
-
-export default function DetailScreen({ route }: Props) {
-  const { characterId } = route.params;
+export default function Detail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [data, setData] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +21,7 @@ export default function DetailScreen({ route }: Props) {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetchCharacter(characterId);
+        const res = await fetchCharacter(Number(id));
         if (mounted) setData(res);
         setError(null);
       } catch (e: any) {
@@ -36,23 +33,20 @@ export default function DetailScreen({ route }: Props) {
     return () => {
       mounted = false;
     };
-  }, [characterId]);
+  }, [id]);
 
-  if (loading) {
+  if (loading)
     return (
       <View style={styles.center}>
         <ActivityIndicator />
       </View>
     );
-  }
-
-  if (error || !data) {
+  if (error || !data)
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error ?? "Não encontrado"}</Text>
       </View>
     );
-  }
 
   return (
     <SafeAreaView style={styles.safe}>

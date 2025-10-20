@@ -8,15 +8,13 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Link, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Character, fetchCharacters } from "../api/rickAndMorty";
-import CharacterItem from "../components/CharacterItem";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types/navigation";
+import { Character, fetchCharacters } from "../src/api/rickAndMorty";
+import CharacterItem from "../src/components/CharacterItem";
 
-type Props = NativeStackScreenProps<RootStackParamList, "List">;
-
-export default function ListScreen({ navigation }: Props) {
+export default function Index() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Character[]>([]);
@@ -33,7 +31,7 @@ export default function ListScreen({ navigation }: Props) {
         const nextPage = reset ? 1 : page;
         const res = await fetchCharacters(nextPage, query.trim() || undefined);
         setHasNext(Boolean(res.info.next));
-        setPage(nextPage + 1);
+        setPage((prev) => (reset ? 2 : prev + 1));
         setData((prev) => (reset ? res.results : [...prev, ...res.results]));
         setError(null);
       } catch (e: any) {
@@ -49,27 +47,28 @@ export default function ListScreen({ navigation }: Props) {
   useEffect(() => {
     load(true);
   }, []);
-
   useEffect(() => {
     const t = setTimeout(() => {
       setRefreshing(true);
+      setPage(1);
       load(true);
     }, 400);
     return () => clearTimeout(t);
-  }, [query, load]);
+  }, [query]);
 
   const renderItem = useCallback(
     ({ item }: { item: Character }) => (
       <CharacterItem
         item={item}
-        onPress={() => navigation.navigate("Detail", { characterId: item.id })}
+        onPress={() =>
+          router.push({ pathname: "/detail/[id]", params: { id: String(item.id) } })
+        }
       />
     ),
-    [navigation]
+    [router]
   );
 
   const keyExtractor = useCallback((item: Character) => String(item.id), []);
-
   const ListFooter = useMemo(
     () => <View style={styles.footer}>{loading && <ActivityIndicator />}</View>,
     [loading]
@@ -101,7 +100,9 @@ export default function ListScreen({ navigation }: Props) {
           data={data}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
-          onEndReached={() => hasNext && load(false)}
+          onEndReached={() => {
+            if (!loading && hasNext) load(false);
+          }}
           onEndReachedThreshold={0.4}
           refreshControl={
             <RefreshControl
